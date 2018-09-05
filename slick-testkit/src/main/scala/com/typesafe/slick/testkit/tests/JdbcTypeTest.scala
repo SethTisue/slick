@@ -215,16 +215,18 @@ class JdbcTypeTest extends AsyncTest[JdbcTestDB] {
     * For more information about the MsSQL issue: https://sourceforge.net/p/jtds/feature-requests/73/
     */
   private[this] def generateTestLocalDateTime() : LocalDateTime = {
-    if (tdb.confName.contains("jtds")) {
-      val now = Instant.now
-      val offset = now.get(ChronoField.MILLI_OF_SECOND) % 10
-      LocalDateTime.ofInstant(now.plusMillis(-offset), ZoneOffset.UTC)
-    } else if (tdb.confName.contains("mysql")) {
-      val now = Instant.now
-      val msOffset = now.get(ChronoField.MILLI_OF_SECOND)
-      LocalDateTime.ofInstant(now.plusMillis(-msOffset), ZoneOffset.UTC)
-    } else
-      LocalDateTime.now(ZoneOffset.UTC)
+    val rounded = {
+      val now = Instant.now.`with`(ChronoField.NANO_OF_SECOND, 0L)
+      if (tdb.confName.contains("jtds")) {
+        val offset = now.get(ChronoField.MILLI_OF_SECOND) % 10
+        now.plusMillis(-offset)
+      }
+      else if (tdb.confName.contains("mysql"))
+        now.`with`(ChronoField.MILLI_OF_SECOND, 0L)
+      else
+        now
+    }
+    LocalDateTime.ofInstant(rounded, ZoneOffset.UTC)
   }
   val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
 
