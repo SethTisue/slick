@@ -1,7 +1,7 @@
 import sbt._
 import Keys._
-import com.typesafe.sbt.sdlc.Plugin.{sdlcSettings, sdlcBase, sdlcCheckDir, sdlc}
-import com.novocode.ornate.sbtplugin.OrnatePlugin.autoImport.{ornateBaseDir, ornateSourceDir, ornateTargetDir, ornateResourceDir, ornateSettings, ornate}
+import com.typesafe.sbt.sdlc.SDLCPlugin.autoImport._
+import com.novocode.ornate.sbtplugin.OrnatePlugin.autoImport._
 
 object Docs {
   val docDir = SettingKey[File]("docDir", "Base directory for documentation")
@@ -31,7 +31,7 @@ object Docs {
     doc := ornate.value
   )
 
-  def scaladocSettings = sdlcSettings ++ Seq(
+  def scaladocSettings = com.typesafe.sbt.sdlc.SDLCPlugin.projectSettings ++ Seq(
     sdlcBase := apiName(projectID.value.name),
     sdlcCheckDir := docDir.value / "target",
     target in doc in Compile := docDir.value / "target" / sdlcBase.value,
